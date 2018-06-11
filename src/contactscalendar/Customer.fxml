@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane id="CustomerGridPane" alignment="CENTER" hgap="10" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" style="-fx-background-color: darksalmon;" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="contactscalendar.CustomerController">
+  <columnConstraints>
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="213.0" minWidth="10.0" prefWidth="149.0" />
+    <ColumnConstraints maxWidth="239.0" minWidth="167.0" prefWidth="231.0" />
+    <ColumnConstraints />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints maxHeight="125.0" minHeight="50.0" prefHeight="100.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="145.0" minHeight="49.0" prefHeight="71.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="145.0" minHeight="50.0" prefHeight="56.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="145.0" minHeight="23.0" prefHeight="32.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="165.0" minHeight="30.0" prefHeight="48.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="165.0" minHeight="30.0" prefHeight="50.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="165.0" minHeight="30.0" prefHeight="50.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="165.0" minHeight="30.0" prefHeight="50.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="165.0" minHeight="30.0" prefHeight="50.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="172.0" minHeight="50.0" prefHeight="131.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="185.0" minHeight="26.0" prefHeight="61.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="185.0" minHeight="50.0" prefHeight="111.0" vgrow="SOMETIMES" />
+  </rowConstraints>
+   <children>
+      <Label id="title" alignment="CENTER" contentDisplay="CENTER" text="Customer Details" textAlignment="CENTER" GridPane.columnSpan="2" GridPane.halignment="CENTER">
+      </Label>
+      <ButtonBar fx:id="buttonBar" buttonMinWidth="56.0" prefHeight="51.0" prefWidth="400.0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+        <buttons>
+            <Button id="smButton" fx:id="getCustomerBtn" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#getCustomerData" prefHeight="50.0" prefWidth="60.0" text="Search" wrapText="true">
+            </Button>
+            <Button id="smButton" fx:id="newRecordBtn" mnemonicParsing="false" onAction="#newButtonAction" prefHeight="50.0" text="New" wrapText="true">
+            </Button>
+            <Button id="smButton" fx:id="editRecordBtn" alignment="CENTER" disable="true" mnemonicParsing="false" onAction="#editCustomerData" prefHeight="50.0" text="Edit" textAlignment="CENTER" wrapText="true">
+            </Button>
+            <Button id="smButton" fx:id="saveRecordBtn" disable="true" mnemonicParsing="false" onAction="#saveCustomerData" prefHeight="50.0" text="Save">
+            </Button>
+            <Button id="smButton" fx:id="deleteRecordBtn" disable="true" mnemonicParsing="false" onAction="#deleteRecord" prefHeight="50.0" text="Delete" textAlignment="CENTER" wrapText="true">
+            </Button>
+            <Button id="smButton" fx:id="newSaveBtn" disable="true" mnemonicParsing="false" onAction="#newCustomerData" prefHeight="50.0" text="New Save" textAlignment="CENTER" wrapText="true">
+            </Button>
+        </buttons>
+      </ButtonBar>
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Customer Name: " textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+      </Label>
+      <TextField fx:id="customerNameField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Address: " textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+      </Label>
+      <TextField fx:id="customerAddress" disable="true" layoutX="169.0" layoutY="157.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="27.0" layoutY="202.0" text="Address Line 2: " textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
+      </Label>
+      <TextField fx:id="customerAddress2" disable="true" layoutX="169.0" layoutY="157.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="27.0" layoutY="221.0" text="City: " textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="6" GridPane.valignment="CENTER">
+      </Label>
+      <TextField fx:id="customerCityField" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+      <Label fx:id="zipcodeReqLbl" text="Required" textFill="RED" visible="false" GridPane.halignment="CENTER" GridPane.rowIndex="7">
+      </Label>
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="55.0" layoutY="285.0" text="Zip: " textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="7" GridPane.valignment="CENTER">
+      </Label>
+      <TextField fx:id="customerZipField" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="61.0" layoutY="310.0" text="Country: " textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="8" GridPane.valignment="CENTER">
+      </Label>
+      <Label fx:id="countryReqLbl" layoutX="56.0" layoutY="311.0" text="Required" textFill="RED" visible="false" GridPane.halignment="LEFT" GridPane.rowIndex="8">
+      </Label>
+      <TextField fx:id="customerCountry" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Phone: " textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="9">
+      </Label>
+      <TextField fx:id="customerPhoneField" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+      <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#backToMain" text="back to main menu" textAlignment="CENTER" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="11">
+      </Button>
+      <Label fx:id="noRecordsLbl" text="No Matching Records" textAlignment="CENTER" textFill="#ee04ea" visible="false" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="3">
+      </Label>
+      <Button fx:id="cancelBtn" mnemonicParsing="false" onAction="#cancelAction" text="Clear" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="10">
+      </Button>
+      <Label fx:id="notActiveLbl" layoutX="138.0" layoutY="194.0" text="Record not Active" textAlignment="CENTER" textFill="#ee04ea" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="3">
+      </Label>
+      <Label fx:id="cityReqLbl" layoutX="56.0" layoutY="311.0" text="Required" textFill="RED" visible="false" GridPane.halignment="CENTER" GridPane.rowIndex="6">
+      </Label>
+      <Label fx:id="databaseErrorLbl" layoutX="169.0" layoutY="193.0" text="Database Error" textAlignment="CENTER" textFill="#ee04ea" visible="false" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="3">
+      </Label>
+      <Label id="customerEnteredLabel" fx:id="customerEnteredLbl" layoutX="159.0" layoutY="193.0" text="Customer already entered" textAlignment="CENTER" textFill="#ee04ea" visible="false" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+      </Label>
+      <Label id="customerEnteredLabel" fx:id="customerSuccessLbl" contentDisplay="CENTER" layoutX="119.0" layoutY="195.0" text="Customer added to database" textAlignment="CENTER" textFill="#ee04ea" visible="false" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+   </children>
+</GridPane>

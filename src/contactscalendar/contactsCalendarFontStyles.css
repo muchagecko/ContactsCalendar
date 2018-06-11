@@ -1,0 +1,31 @@
+/* 
+    Contacts Calendar App CSS
+    Author     : Elaine Powell
+    Updated    : June 10, 2018
+*/
+
+@import url('https://fonts.googleapis.com/css?family=Domine');
+
+.label
+{
+    -fx-font-family: 'Domine', serif;
+    -fx-font-size: 16;
+}
+
+.button
+{
+    -fx-font-family: 'Domine', serif;
+    -fx-font-size: 20;
+}
+
+#smButton
+{
+    -fx-font-family: 'Domine', serif;
+    -fx-font-size: 12;
+}
+
+#title
+{
+    -fx-font-family: 'Domine', serif;
+    -fx-font-size: 24;
+}

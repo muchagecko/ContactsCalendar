@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -26,8 +27,8 @@ import javafx.scene.control.ButtonBar;
 
 /**
  * FXML CustomerController class
- * 
- * @author Elaine Powell <geckoswonderland.com>
+ * controls customer details screen (Customer.fxml)
+ * @author Elaine Powell
  */
 public class CustomerController implements Initializable
 {
@@ -45,6 +46,7 @@ public class CustomerController implements Initializable
     @FXML private Label countryReqLbl;
     @FXML private Label databaseErrorLbl;
     @FXML private Label customerEnteredLbl;
+    @FXML private Label customerSuccessLbl;
     @FXML private Button editRecordBtn;
     @FXML private Button saveRecordBtn;
     @FXML private Button newRecordBtn;
@@ -55,16 +57,18 @@ public class CustomerController implements Initializable
     @FXML private Button cancelBtn; 
     String customerNameToEdit;
     String user = ContactsCalendarController.user;
+    String driverManagerString = ContactsCalendarController.driverManagerString;
 
+    /**
+    * GetCustomerData is called by search button (getCustomerBtn)
+    * gets records for customer entered in customerNameField from database by
+    * calling search_customer stored procedure
+    * fills fields with customer information if found, makes visible noRecordsLbl otherwise
+    */
     @FXML
     private void getCustomerData(ActionEvent event)
     {
-        // ** gets data for customer entered from database ** //
-        noRecordsLbl.setVisible(false);
-        notActiveLbl.setVisible(false);
-        zipcodeReqLbl.setVisible(false);
-        databaseErrorLbl.setVisible(false);
-        customerEnteredLbl.setVisible(false);
+        turnOffLabels();
         
         String customerNameEntered = customerNameField.getText();
         Boolean recordFound = false;
@@ -74,7 +78,7 @@ public class CustomerController implements Initializable
 
         try
         {
-            manager = DriverManager.getConnection("jdbc:mysql://db4free.net:3307/?user=powelle&password=gecko69");
+            manager = DriverManager.getConnection(driverManagerString);
             String query = "{CALL powellcontacts.search_customer(?)}";
             pstmt = manager.prepareStatement(query);
             pstmt.setString(1, customerNameEntered);
@@ -113,7 +117,6 @@ public class CustomerController implements Initializable
         catch (Exception e)
         {
             databaseErrorLbl.setVisible(true);
-            //System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
         
         if (recordFound == false)
@@ -121,48 +124,45 @@ public class CustomerController implements Initializable
             noRecordsLbl.setVisible(true);
         }
     }
-    
+
+    /**
+    * newButtonAction called when new button (newRecordBtn) is clicked
+    * clears all the error labels and calls clearCustomerData
+    */
+    @FXML
+    private void newButtonAction(ActionEvent event)
+    {
+        turnOffLabels();
+        clearCustomerData();
+        newSaveBtn.setDisable(false);
+        deleteRecordBtn.setDisable(true);
+        enableFields();
+    }
+
+    /**
+     * editCustomerData - called when edit button (editRecordBtn) clicked
+     * sets buttons and fields when customer data is to be edited
+     */
     @FXML
     private void editCustomerData(ActionEvent event)
     {
-        // ** sets buttons and fields if customer data is to be edited ** //
-        noRecordsLbl.setVisible(false);
-        notActiveLbl.setVisible(false);
-        zipcodeReqLbl.setVisible(false);
-        databaseErrorLbl.setVisible(false);
-        customerEnteredLbl.setVisible(false);
+        turnOffLabels();
         customerNameToEdit = customerNameField.getText();
         saveRecordBtn.setDisable(false);
         deleteRecordBtn.setDisable(false);
         enableFields();
         editRecordBtn.setDisable(true);
     }
-    
-    private String[] getCustomerEnteredData()
-    {
-        // ** gets data entered into fields ** //
-        String[] customerDataArray = new String[7];
-        
-        customerDataArray[0] = customerNameField.getText();
-        customerDataArray[3] = customerCityField.getText();
-        customerDataArray[4] = customerZipField.getText();
-        customerDataArray[5] = customerCountry.getText();
-        customerDataArray[6] = customerPhoneField.getText();
-        customerDataArray[1] = customerAddress.getText();
-        customerDataArray[2] = customerAddress2.getText();
-        
-        return customerDataArray;
-    }
-    
+
+    /**
+     * saveCustomerData called when save button (saveRecordBtn) is clicked
+     * saves customer data entered to database by prepareStatement
+     * if data isn't saved, error label made visible
+     */
     @FXML
     private void saveCustomerData(ActionEvent event)
     {
-        // ** saves data entered to database ** //
-        noRecordsLbl.setVisible(false);
-        notActiveLbl.setVisible(false);
-        zipcodeReqLbl.setVisible(false);
-        databaseErrorLbl.setVisible(false);
-        customerEnteredLbl.setVisible(false);
+        turnOffLabels();
         
         Connection manager = null;
         
@@ -178,7 +178,7 @@ public class CustomerController implements Initializable
         
         try
         {
-            manager = DriverManager.getConnection("jdbc:mysql://db4free.net:3307/?user=powelle&password=gecko69");
+            manager = DriverManager.getConnection(driverManagerString);
             PreparedStatement pstmt = manager.prepareStatement("UPDATE powellcontacts.customer AS C LEFT JOIN powellcontacts.address AS A ON C.addressId = A.addressId"
                     + " SET C.customerName = " + "\"" + customerNameEdited + "\"" + ", C.lastUpdateBy = " + "\"" + user + "\"" +  ", A.phone = " + "\"" + customerPhoneEdited + "\"" + ", A.address = " + "\"" + addressEdited + "\"" + ", A.address2 = " + "\"" + address2Edited + "\"" + ", A.lastUpdateBy = " + "\"" + user + "\"" +  ", A.city = " + "\"" + cityEdited + "\"" + ", A.postalCode = " + "\"" + postalCodeEdited + "\"" + ", A.country = " + "\"" + countryEdited + "\""
                     + " WHERE C.customerName = " + "\"" + customerNameToEdit + "\"");            
@@ -197,159 +197,23 @@ public class CustomerController implements Initializable
         }
     }
     
-    private void clearCustomerData()
-    {
-        customerNameField.setText("");
-        customerAddress.setText("");
-        customerAddress2.setText("");
-        customerCityField.setText("");
-        customerCountry.setText("");
-        customerZipField.setText("");
-        customerPhoneField.setText("");
-    }
-    
-    private void disableFields()
-    {
-        customerAddress.setDisable(true);
-        customerAddress2.setDisable(true);
-        customerCityField.setDisable(true);
-        customerCountry.setDisable(true);
-        customerZipField.setDisable(true);
-        customerPhoneField.setDisable(true);
-    }
-    
-    private void enableFields()
-    {
-        customerAddress.setDisable(false);
-        customerAddress2.setDisable(false);
-        customerCityField.setDisable(false);
-        customerCountry.setDisable(false);
-        customerZipField.setDisable(false);
-        customerPhoneField.setDisable(false);
-    }
-    
-    @FXML
-    private void newButtonAction(ActionEvent event)
-    {
-        noRecordsLbl.setVisible(false);
-        notActiveLbl.setVisible(false);
-        zipcodeReqLbl.setVisible(false);
-        databaseErrorLbl.setVisible(false);
-        customerEnteredLbl.setVisible(false);
-        clearCustomerData();
-        newSaveBtn.setDisable(false);
-        deleteRecordBtn.setDisable(true);
-        enableFields();
-    }
-    
-    @FXML
-    private void newCustomerData(ActionEvent event)
-    {
-        // ** gets new customer data and sends it to the database ** //
-        noRecordsLbl.setVisible(false);
-        notActiveLbl.setVisible(false);
-        zipcodeReqLbl.setVisible(false);
-        databaseErrorLbl.setVisible(false);
-        customerEnteredLbl.setVisible(false);
-        
-        String[] editedData = getCustomerEnteredData();
-        System.out.println(Arrays.toString(editedData));
-        
-        String query1 = "{CALL powellcontacts.search_customer(?)}";
-        
-        // ** checks if customer is already in database ** //
-        try
-        {
-            Connection manager1 = null;
-            manager1 = DriverManager.getConnection("jdbc:mysql://db4free.net:3307/?user=powelle&password=gecko69");
-            PreparedStatement pstmt = manager1.prepareStatement(query1);
-            pstmt.setString(1, editedData[0]);
-            ResultSet resultSet = pstmt.executeQuery();
-            
-            while (resultSet.next())
-            {
-                if (resultSet.getString("customerName") != null)
-                {
-                    customerEnteredLbl.setVisible(true);
-                    System.out.println("customerName from db: " + resultSet.getString("customerName"));
-                    newSaveBtn.setDisable(true);
-                    disableFields();
-                }
-                
-                else
-                {
-                    //addCustomerNew(editedData);
-                    System.out.println("add new customer because not already in db");
-                }
-            }
-        }
-        
-        catch (Exception e)
-        {
-            databaseErrorLbl.setVisible(true);
-            System.out.println("database error from not even");
-            //.printException(e);
-            //System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-        }
-        
-        finally
-        {
-            System.out.println("try catch finally!");
-            //if (pstmt != null) { pstmt.close(); }
-        }
-    }
-    
-    private void addCustomerNew(String[]editedData)
-    {
-        //String query2 = "{CALL powellcontacts.new_customer(?, ?, ?, ?, ?, ?, ?, ?)}";
-        String query2 = "{CALL powellcontacts.new_test(?, ?, ?, ?, ?, ?, ?, ?)}";
-        
-        try
-        {
-            Connection manager2 = null;
-            manager2 = DriverManager.getConnection("jdbc:mysql://db4free.net:3307/?user=powelle&password=gecko69");
-            PreparedStatement stmt = manager2.prepareStatement(query2);
-            stmt.setString(1, editedData[5]);
-            stmt.setString(2, editedData[4]);
-            stmt.setString(3, editedData[3]);
-            stmt.setString(4, editedData[2]);
-            stmt.setString(5, editedData[1]);
-            stmt.setString(6, editedData[0]);
-            stmt.setString(7, editedData[6]);
-            stmt.setString(8, user);
-
-            stmt.execute();
-            System.out.println("Data is successfully inserted into database.");
-            stmt.close();
-            manager2.close();
-            newSaveBtn.setDisable(true);
-            disableFields();
-        }
-
-        catch (Exception e)
-        {
-            databaseErrorLbl.setVisible(true);
-            System.out.println("database error from NOT having customer already entered");
-            //System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-        }
-    }
-    
+    /**
+     * deleteRecord called when delete button (deleteRecordBtn) clicked
+     * deletes customer record by setting it inactive in db
+     * calls stored procedure inactivate_customer
+     * @throws IOException
+     */
     @FXML
     private void deleteRecord(ActionEvent event) throws IOException
     {
-        // ** deletes customer record by inactivating it ** //
-        noRecordsLbl.setVisible(false);
-        notActiveLbl.setVisible(false);
-        zipcodeReqLbl.setVisible(false);
-        databaseErrorLbl.setVisible(false);
-        customerEnteredLbl.setVisible(false);
+        turnOffLabels();
         Connection manager = null;
         String query = "{CALL powellcontacts.inactivate_customer(?, ?)}";
         String customerNameEntered = customerNameField.getText();
                         
         try
         {
-            manager = DriverManager.getConnection("jdbc:mysql://db4free.net:3307/?user=powelle&password=gecko69");
+            manager = DriverManager.getConnection(driverManagerString);
             PreparedStatement stmt = manager.prepareStatement(query);
             stmt.setString(1, customerNameEntered);
             stmt.setString(2, user);
@@ -368,20 +232,94 @@ public class CustomerController implements Initializable
         }
     }
     
+    /**
+     * newCustomerData is called when new save button (newSaveBtn) is clicked
+     * gets new customer data and sends it to the database
+     * calling search_customer stored proc first to make sure customer isn't
+     * already in database. If resultSet from database returns null,
+     * addCustomerNew(editedData) is called and sends array of customer data
+     * databaseErrorLbl set to visible if exceptions
+     * @throws SQLException
+     */
+    @FXML
+    private void newCustomerData(ActionEvent event) throws SQLException
+    {
+        turnOffLabels();
+        
+        String[] editedData = getCustomerEnteredData();
+        System.out.println(Arrays.toString(editedData));
+        
+        String query1 = "{CALL powellcontacts.search_customer(?)}";
+        PreparedStatement pstmt = null;
+        
+        // ** checks if customer is already in database ** //
+        try
+        {
+            Connection manager1 = null;
+            manager1 = DriverManager.getConnection(driverManagerString);
+            pstmt = manager1.prepareStatement(query1);
+            pstmt.setString(1, editedData[0]);
+            ResultSet resultSet = pstmt.executeQuery();
+            
+            while (resultSet.next())
+            {
+                if (resultSet.getString("customerName") != null)
+                {
+                    customerEnteredLbl.setVisible(true);
+                    System.out.println("customerName from db: " + resultSet.getString("customerName"));
+                    newSaveBtn.setDisable(true);
+                    disableFields();
+                    //break;
+                }
+                
+                else
+                {
+                    //addCustomerNew(editedData);
+                    System.out.println("There's no customer name that matches but there's a result set?");
+                }
+            }
+            if (!resultSet.next())
+            {
+                System.out.println("no customer name matched, so adding new customer");
+                addCustomerNew(editedData);
+            }
+        }
+        
+        catch (SQLException e)
+        {
+            databaseErrorLbl.setVisible(true);
+            System.out.println("SQL exception " + e);
+            //System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        }
+        
+        finally
+        {
+            System.out.println("try catch finally in newCustomerData!");
+            if (pstmt != null) { pstmt.close(); }
+        }
+    }
+
+    /**
+     * cancelAction is called when clear button (cancelBtn) is clicked
+     * calls turnOffLabels, disables edit and delete buttons
+     * and clears data by calling clearCustomerData
+     * @throws IOException
+     */
     @FXML
     private void cancelAction(ActionEvent event) throws IOException
     {
-        // ** sets error messages off and clears data ** //
-        noRecordsLbl.setVisible(false);
-        notActiveLbl.setVisible(false);
-        zipcodeReqLbl.setVisible(false);
-        databaseErrorLbl.setVisible(false);
-        customerEnteredLbl.setVisible(false);
+        turnOffLabels();
         editRecordBtn.setDisable(true);
         deleteRecordBtn.setDisable(true);
         clearCustomerData();
     }
-    
+
+    /**
+     * backToMain is called when back to main menu button is clicked
+     * sets scene to MainScene with the main menu
+     * adds CSS file for style
+     * @throws IOException
+     */
     @FXML
     private void backToMain(ActionEvent event) throws IOException
     {
@@ -389,13 +327,140 @@ public class CustomerController implements Initializable
         Scene MainScene = new Scene(mainParent);
         Stage primaryStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         primaryStage.setScene(MainScene);
+        MainScene.getStylesheets().add(getClass().getResource("contactsCalendarFontStyles.css").toExternalForm());
         primaryStage.show();
     }
+   
+    /**
+     * getCustomerEnteredData collects data entered into textFields
+     * @return customerDataArray[] Strings
+     */
+    private String[] getCustomerEnteredData()
+    {
+        String[] customerDataArray = new String[7];
+        
+        customerDataArray[0] = customerNameField.getText();
+        customerDataArray[3] = customerCityField.getText();
+        customerDataArray[4] = customerZipField.getText();
+        customerDataArray[5] = customerCountry.getText();
+        customerDataArray[6] = customerPhoneField.getText();
+        customerDataArray[1] = customerAddress.getText();
+        customerDataArray[2] = customerAddress2.getText();
+        
+        return customerDataArray;
+    }
     
+    /**
+     * clearCustomerData clears textFields
+     */
+    private void clearCustomerData()
+    {
+        customerNameField.setText("");
+        customerAddress.setText("");
+        customerAddress2.setText("");
+        customerCityField.setText("");
+        customerCountry.setText("");
+        customerZipField.setText("");
+        customerPhoneField.setText("");
+    }
+
+    /**
+     * diableFields disables the customer textFields
+     * except for the customerName field
+     */
+    private void disableFields()
+    {
+        customerAddress.setDisable(true);
+        customerAddress2.setDisable(true);
+        customerCityField.setDisable(true);
+        customerCountry.setDisable(true);
+        customerZipField.setDisable(true);
+        customerPhoneField.setDisable(true);
+    }
+    
+    /**
+     * enableFields enables the customer textFields
+     * except the customerName field
+     */
+    private void enableFields()
+    {
+        customerAddress.setDisable(false);
+        customerAddress2.setDisable(false);
+        customerCityField.setDisable(false);
+        customerCountry.setDisable(false);
+        customerZipField.setDisable(false);
+        customerPhoneField.setDisable(false);
+    }
+    
+    /**
+     * turnOffLabels - setVisible(false) to all 6 of the labels
+     *       noRecordsLbl
+     *       notActiveLbl
+     *       zipcodReqLbl
+     *       databaseErrorLbl
+     *       customerEnteredLbl
+     *       customerSuccessLbl
+     */
+    private void turnOffLabels()
+    {
+        noRecordsLbl.setVisible(false);
+        notActiveLbl.setVisible(false);
+        zipcodeReqLbl.setVisible(false);
+        databaseErrorLbl.setVisible(false);
+        customerEnteredLbl.setVisible(false);
+        customerSuccessLbl.setVisible(false);
+    }
+    
+    /**
+     * addCustomerNew sends editedData array to database by calling
+     * new_customer stored procedure
+     * customerSuccessLbl if success
+     * @param editedData array of customer textFields data
+     */
+    private void addCustomerNew(String[]editedData)
+    {
+        String query2 = "{CALL powellcontacts.new_customer(?, ?, ?, ?, ?, ?, ?, ?)}";
+        
+        try
+        {
+            Connection manager2 = null;
+            manager2 = DriverManager.getConnection(driverManagerString);
+            PreparedStatement stmt = manager2.prepareStatement(query2);
+            stmt.setString(1, editedData[0]);
+            stmt.setString(2, editedData[1]);
+            stmt.setString(3, editedData[2]);
+            stmt.setString(4, editedData[3]);
+            stmt.setString(5, editedData[4]);
+            stmt.setString(6, editedData[5]);
+            stmt.setString(7, editedData[6]);
+            stmt.setString(8, user);
+
+            stmt.execute();
+            System.out.println("Data is successfully inserted into database.");
+            customerSuccessLbl.setVisible(true);
+            
+            stmt.close();
+            manager2.close();
+            newSaveBtn.setDisable(true);
+            disableFields();
+        }
+
+        catch (Exception e)
+        {
+            databaseErrorLbl.setVisible(true);
+            System.out.println("database error from addCustomerNew");
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        }
+    }
+    
+    /**
+     * for validating zip textField when changed FocusListener
+     * and for when data is entered using return key
+     * uses Regex for zip + 4
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
-        //for validating zip textField when changed FocusListener
         customerZipField.focusedProperty().addListener((observable, oldValue, newValue) ->
         {
             if (newValue != null)
