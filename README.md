@@ -1,7 +1,7 @@
 # ContactsCalendar ver. 1.0 June 2018
 Java project for WGU BS in Software Development
 
-This application was completed for an advanced software development class and its features are specifically designed to meet
-requirements for the assignment.
+This application was completed for Software II - Advanced Java Concepts class and its features are specifically designed to meet the requirements for the assignment.
 
-Details to come...
+Developed using Netbeans IDE 8.2, MySQL 8.0
+Database created at db4free.net using phpMyAdmin.
