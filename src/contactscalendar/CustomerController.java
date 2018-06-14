@@ -91,7 +91,6 @@ public class CustomerController implements Initializable
                     recordFound = true;
                     String customer = resultSet.getString("customerName");
                     int active = resultSet.getInt("active");
-                    System.out.println("customerNameEntered = " + customer);
                     customerAddress.setText(resultSet.getString("address"));
                     customerAddress2.setText(resultSet.getString("address2"));
                     customerCityField.setText(resultSet.getString("city"));
@@ -165,6 +164,7 @@ public class CustomerController implements Initializable
         turnOffLabels();
         
         Connection manager = null;
+        PreparedStatement pstmt = null;
         
         String[] editedData = getCustomerEnteredData();
         
@@ -179,12 +179,21 @@ public class CustomerController implements Initializable
         try
         {
             manager = DriverManager.getConnection(driverManagerString);
-            PreparedStatement pstmt = manager.prepareStatement("UPDATE powellcontacts.customer AS C LEFT JOIN powellcontacts.address AS A ON C.addressId = A.addressId"
-                    + " SET C.customerName = " + "\"" + customerNameEdited + "\"" + ", C.lastUpdateBy = " + "\"" + user + "\"" +  ", A.phone = " + "\"" + customerPhoneEdited + "\"" + ", A.address = " + "\"" + addressEdited + "\"" + ", A.address2 = " + "\"" + address2Edited + "\"" + ", A.lastUpdateBy = " + "\"" + user + "\"" +  ", A.city = " + "\"" + cityEdited + "\"" + ", A.postalCode = " + "\"" + postalCodeEdited + "\"" + ", A.country = " + "\"" + countryEdited + "\""
-                    + " WHERE C.customerName = " + "\"" + customerNameToEdit + "\"");            
+            String query = "{CALL powellcontacts.save_customer(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+            pstmt = manager.prepareStatement(query);
+            pstmt.setString(1, customerNameToEdit);
+            pstmt.setString(2, editedData[0]);
+            pstmt.setString(3, user);
+            pstmt.setString(4, editedData[6]);
+            pstmt.setString(5, editedData[1]);
+            pstmt.setString(6, editedData[2]);
+            pstmt.setString(7, editedData[3]);
+            pstmt.setString(8, editedData[4]);
+            pstmt.setString(9, editedData[5]);
             pstmt.execute();
             pstmt.close();
             manager.close();
+
             saveRecordBtn.setDisable(true);
             deleteRecordBtn.setDisable(true);
             disableFields();
@@ -266,7 +275,6 @@ public class CustomerController implements Initializable
                 if (resultSet.getString("customerName") != null)
                 {
                     customerEnteredLbl.setVisible(true);
-                    System.out.println("customerName from db: " + resultSet.getString("customerName"));
                     newSaveBtn.setDisable(true);
                     disableFields();
                     //break;
@@ -275,12 +283,10 @@ public class CustomerController implements Initializable
                 else
                 {
                     //addCustomerNew(editedData);
-                    System.out.println("There's no customer name that matches but there's a result set?");
                 }
             }
             if (!resultSet.next())
             {
-                System.out.println("no customer name matched, so adding new customer");
                 addCustomerNew(editedData);
             }
         }
@@ -288,13 +294,11 @@ public class CustomerController implements Initializable
         catch (SQLException e)
         {
             databaseErrorLbl.setVisible(true);
-            System.out.println("SQL exception " + e);
             //System.err.println( e.getClass().getName() + ": " + e.getMessage() );
         }
         
         finally
         {
-            System.out.println("try catch finally in newCustomerData!");
             if (pstmt != null) { pstmt.close(); }
         }
     }
@@ -436,7 +440,6 @@ public class CustomerController implements Initializable
             stmt.setString(8, user);
 
             stmt.execute();
-            System.out.println("Data is successfully inserted into database.");
             customerSuccessLbl.setVisible(true);
             
             stmt.close();
@@ -448,8 +451,6 @@ public class CustomerController implements Initializable
         catch (Exception e)
         {
             databaseErrorLbl.setVisible(true);
-            System.out.println("database error from addCustomerNew");
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
         }
     }
     

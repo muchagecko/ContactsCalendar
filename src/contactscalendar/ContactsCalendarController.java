@@ -22,6 +22,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.util.Pair;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -57,9 +58,11 @@ public class ContactsCalendarController implements Initializable
     @FXML private Button enterButton;
     ZoneId zid = ZoneId.systemDefault();
     //H vs h is difference between 24 hour vs 12 hour format.
-    DateTimeFormatter fullformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
-    DateTimeFormatter datetimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm");
-    DateTimeFormatter hourFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    //DateTimeFormatters are all set here
+    public static DateTimeFormatter fullformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
+    public static DateTimeFormatter datetimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm");
+    public static DateTimeFormatter ymdformatter = DateTimeFormatter.ofPattern("yyyy:MM:dd");
+    public static DateTimeFormatter hourFormatter = DateTimeFormatter.ofPattern("HH:mm");
     //protected static String loginLogFile = "c:\\loginLog.txt";
     //protected static String loginLogFile = "C:/Users/elaine.powell/loginLog.txt";
     protected static String loginLogFile = "C:\\Users\\Student\\Desktop\\loginLog.txt";
@@ -112,10 +115,10 @@ public class ContactsCalendarController implements Initializable
         try
         {
             manager = DriverManager.getConnection(driverManagerString);
-            String query = ("SELECT * FROM powellcontacts.user WHERE userName = " + "'"
-                    + userEntered + "'" + " AND password = " + "'"
-                    + passwordEntered + "'");
+            String query = "{CALL powellcontacts.login(?, ?)}";
             pstmt = manager.prepareStatement(query);
+            pstmt.setString(1, userEntered);
+            pstmt.setString(2, passwordEntered);
             ResultSet resultSet = pstmt.executeQuery();
 
             while (resultSet.next())
@@ -126,7 +129,6 @@ public class ContactsCalendarController implements Initializable
                     String password = resultSet.getString("password");
                     accept = true;
                     user = userName;
-                    System.out.println("from database: " + userName + " : " + password);
                 }
             }
             resultSet.close();
@@ -183,19 +185,19 @@ public class ContactsCalendarController implements Initializable
 // ****** Reminders *********** //
     Timer timer = new Timer();
     
-    String nextApptStart;
+    Appointment nextAppt = new Appointment();
     String apptData;
     
     /**
      * showNotifications calls getTimeToAppt
      * returns local time from database UTC time
-     * calls showReminderAlert if time to appointment <= 15 mins
+     * calls showReminderAlert if time to appointment <= 30 mins
      */
     private void showNotifications()
     {
         long timeToAppt = getTimeToAppt();
 
-        if (timeToAppt <= 15)
+        if (timeToAppt <= 30)
         Platform.runLater(() -> showReminderAlert(apptData, timeToAppt));
     }
     
@@ -244,11 +246,14 @@ public class ContactsCalendarController implements Initializable
                       
             //adds data to variable
             while(result.next())
-            {
+            {                
                 if (result.getString("start") != null)
-                { 
-                    nextApptStart = result.getString("start");
-                    apptData = ("Customer: " + result.getString("customer") + "\n" + " Appt. Type: " + result.getString("apptType"));
+                {
+                    nextAppt.setStartTime(result.getString(2));
+                    nextAppt.setCustomerName(result.getString(5));
+                    nextAppt.setApptType(result.getString(4));
+                    
+                    apptData = ("Customer: " + nextAppt.getCustomerName() + "\n" + " Appt. Type: " + nextAppt.getApptType());
                     accept = true;
                 }
                 showNotifications();
@@ -262,27 +267,23 @@ public class ContactsCalendarController implements Initializable
     }
     
     /**
-     * getTimeToAppt converts time from database to local time
-     * this needs to be eliminated
+     * getTimeToAppt gets start time and
+     * calculates how many minutes until next appointment
      */
     public long getTimeToAppt()
     {
         long timeToAppt = 0;
-        // ** get next time from database
-        String rowDate = nextApptStart.substring(0, 16);
+        // ** get appointment time from Appointment object
+        String rowDate = nextAppt.getStartTime().substring(0, 16);
         LocalDateTime start = LocalDateTime.parse(rowDate, datetimeformatter);
         
-        // ** converts from database UTC to current zone
-        ZonedDateTime zdtStart = start.atZone(ZoneId.of("UTC"));
-        ZonedDateTime localStart = zdtStart.withZoneSameInstant(zid);
-        
         // ** sends local zone startTime to apptData string
-        String trimmedLocalStart = localStart.format(hourFormatter);
+        String trimmedLocalStart = start.format(hourFormatter);
         apptData = ("Start time: " + trimmedLocalStart + "\n" + apptData);
         
         // ** subtract that time from currentTime
-        ZonedDateTime now = LocalDateTime.now().atZone(zid);
-        timeToAppt = ChronoUnit.MINUTES.between(now, localStart);
+        LocalDateTime now = LocalDateTime.now();
+        timeToAppt = ChronoUnit.MINUTES.between(now, start);
         return timeToAppt;
     }
 

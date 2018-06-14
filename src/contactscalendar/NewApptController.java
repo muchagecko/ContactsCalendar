@@ -59,13 +59,12 @@ public class NewApptController implements Initializable
     String date;
         
     ZoneId zid = ZoneId.systemDefault();
-    DateTimeFormatter fullformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
-    DateTimeFormatter datetimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm");
-    DateTimeFormatter ymdformatter = DateTimeFormatter.ofPattern("yyyy:MM:dd");
-    DateTimeFormatter hourFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    DateTimeFormatter fullformatter = ContactsCalendarController.fullformatter;
+    DateTimeFormatter datetimeformatter = ContactsCalendarController.datetimeformatter;
+    DateTimeFormatter ymdformatter = ContactsCalendarController.ymdformatter;
+    DateTimeFormatter hourFormatter = ContactsCalendarController.hourFormatter;
     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-    
-// ** METHODS **//
+        
     /**
      * Called by add appointment button (addAppointmentBtn)
      * Validates data entered by user in textFields
@@ -228,13 +227,11 @@ public class NewApptController implements Initializable
         
         if ((ApptStartTime.before(businessStartTime)) || (ApptEndTime.after(businessEndTime)))
         {
-            System.out.println("Outside of business hours");
             return false;
         }
         
         else
         {
-            System.out.println("Inside business hours");
             return true;
         }
     }
@@ -282,13 +279,11 @@ public class NewApptController implements Initializable
             
             if (!result.isBeforeFirst())
             {
-                System.out.println("no overlap");
                 noOverlap = true;
             }
 
             else
             {
-                System.out.println("Overlapping appointments");
                 noOverlap = false;  
             }
         }
@@ -296,7 +291,6 @@ public class NewApptController implements Initializable
         catch (Exception e)
         {
             errorLbl.setVisible(true);
-            //System.err.println( e.getClass().getName() + ": " + e.getMessage() );
         }
         return noOverlap;
     }
@@ -333,7 +327,6 @@ public class NewApptController implements Initializable
         catch (Exception e)
         {
             errorLbl.setVisible(true);
-            //System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
         return times;
     }

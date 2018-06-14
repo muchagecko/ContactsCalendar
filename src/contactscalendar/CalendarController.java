@@ -82,10 +82,10 @@ public class CalendarController implements Initializable
     public static boolean isWeek;
     int weekCounter = 0;
     
-    DateTimeFormatter fullformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
-    DateTimeFormatter datetimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm");
-    DateTimeFormatter ymdformatter = DateTimeFormatter.ofPattern("yyyy:MM:dd");
-    DateTimeFormatter hourFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    DateTimeFormatter fullformatter = ContactsCalendarController.fullformatter;
+    DateTimeFormatter datetimeformatter = ContactsCalendarController.datetimeformatter;
+    DateTimeFormatter ymdformatter = ContactsCalendarController.ymdformatter;
+    DateTimeFormatter hourFormatter = ContactsCalendarController.hourFormatter;
     ZoneId zid = ZoneId.systemDefault();
     
     public static CalendarController currentCalendarController;
@@ -127,6 +127,7 @@ public class CalendarController implements Initializable
         Scene MainScene = new Scene(mainParent);
         Stage primaryStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         primaryStage.setScene(MainScene);
+        MainScene.getStylesheets().add(getClass().getResource("contactsCalendarFontStyles.css").toExternalForm());
         primaryStage.show();
     }
 
@@ -281,7 +282,6 @@ public class CalendarController implements Initializable
         LocalDateTime ldtTime = utcTime.toLocalDateTime();
         String stTime = ldtTime.format(fullformatter);
         Timestamp tsTime = Timestamp.valueOf(stTime);
-        System.out.println("Timestamp: " + stTime);
  
         try
         {
@@ -335,7 +335,6 @@ public class CalendarController implements Initializable
         public void handle(javafx.scene.input.MouseEvent e)
         {
             day = e.getSource().toString();
-            System.out.println("mouseevent: " + day);
             Pattern pttn = Pattern.compile("'([^' ]+)'");
             Matcher match = pttn.matcher(day);
             

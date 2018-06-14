@@ -58,7 +58,7 @@ public class ReportController implements Initializable
     
     ZoneId zid = ZoneId.systemDefault();
     //H vs h is difference between 24 hour vs 12 hour format.
-    DateTimeFormatter datetimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm");
+    DateTimeFormatter datetimeformatter = ContactsCalendarController.datetimeformatter;
         
     @Override
     public void initialize(URL url, ResourceBundle rb)
@@ -127,7 +127,6 @@ public class ReportController implements Initializable
               for (int i = 0; i < result.getMetaData().getColumnCount(); i++)
               {
                   final int j = i;
-                  System.out.println("FOR LOOP STARTED [" + i + "] [" + j + "]");
                   TableColumn col = new TableColumn(result.getMetaData().getColumnName(i + 1));
 
                   col.setCellValueFactory(new Callback<CellDataFeatures<ObservableList, String>, ObservableValue<String>>()

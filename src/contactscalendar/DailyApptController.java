@@ -49,11 +49,11 @@ public class DailyApptController implements Initializable
     
     ZoneId zid = ZoneId.systemDefault();
     //H vs h is difference between 24 hour vs 12 hour format.
-    DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm");
+    DateTimeFormatter df = ContactsCalendarController.datetimeformatter;
     DateTimeFormatter fullFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     DateTimeFormatter yearMonthDayFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    DateTimeFormatter hourFormatter = DateTimeFormatter.ofPattern("HH:mm");
-
+    DateTimeFormatter hourFormatter = ContactsCalendarController.hourFormatter;
+    
 // ** METHODS **//
     /**
      * showDailySchedule called from tableView - dailyApptTV
@@ -87,7 +87,6 @@ public class DailyApptController implements Initializable
                 appt.setCustomerName(result.getString(4));
                 appt.setConsultant(result.getString(5));
                 row.add(appt);
-                System.out.println("Row [1] added " + row);
             }
             // column names
             TableColumn <Appointment, String> startTime = new TableColumn <> ("Start Time");
@@ -135,7 +134,6 @@ public class DailyApptController implements Initializable
     private String getDate() throws ParseException
     {
         LocalDate currentMonth = LocalDate.now(zid);
-        System.out.println("day: " + day);
         
         String stringMonth = (yearMonthDayFormat.format(currentMonth));
         stringMonth = stringMonth.substring(0, 8) + day + " 00:00:00";
@@ -143,11 +141,9 @@ public class DailyApptController implements Initializable
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date dayDateDate = formatter.parse(stringMonth);
         
-        //** subtract a day because something weird happens with the database
-        //LocalDateTime localDayDate = LocalDateTime.from(dayDateDate.toInstant().atZone(zid));
+        //** subtract a day
         LocalDateTime localDayDate = LocalDateTime.from(dayDateDate.toInstant().atZone(zid)).minusDays(1);
         String dayDate = (fullFormat.format(localDayDate));
-        System.out.println("dayDate: " + dayDate);
         return dayDate;
     }
     /**

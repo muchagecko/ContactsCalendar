@@ -32,13 +32,21 @@ public class Appointment
     Timestamp endTimestamp;
     
     ZoneId zid = ZoneId.systemDefault();
-    DateTimeFormatter datetimeformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm");
-    DateTimeFormatter fullformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    DateTimeFormatter hourFormatter = DateTimeFormatter.ofPattern("kk:mm");
+    DateTimeFormatter fullformatter = ContactsCalendarController.fullformatter;
+    DateTimeFormatter datetimeformatter = ContactsCalendarController.datetimeformatter;
+    DateTimeFormatter ymdformatter = ContactsCalendarController.ymdformatter;
+    DateTimeFormatter hourFormatter = ContactsCalendarController.hourFormatter;
     
     public Appointment()
     {
         
+    }
+    
+    public Appointment(String startTime, String customerName, String apptType)
+    {
+        this.startTimeString = startTime;
+        this.customerNameString = customerName;
+        this.apptTypeString = apptType;
     }
 
     public Appointment(String startTime, String endTime, String apptType, String customerName, String consultant)
@@ -59,7 +67,6 @@ public class Appointment
     public void setStartTime(String startTime)
     {
         //converts from UTC to local time
-        //System.out.println("appt class start: " + startTime);
         String shortenedStart = startTime.substring(0, 19);
         LocalDateTime localStart = LocalDateTime.parse(shortenedStart, fullformatter);
         ZonedDateTime utcStart = localStart.atZone(ZoneId.of("UTC"));
@@ -76,7 +83,6 @@ public class Appointment
         ZonedDateTime utcTime = zdtTime.withZoneSameInstant(ZoneId.of("UTC"));
         LocalDateTime ldtTime = utcTime.toLocalDateTime();
         Timestamp tsTime = Timestamp.valueOf(ldtTime);
-        //System.out.println("UTCstartTime: " + tsTime);
         
         this.startTimestamp = tsTime;
     }
@@ -107,7 +113,6 @@ public class Appointment
     {
         //converts from UTC to local time
         String shortenedEnd = endTime.substring(0, 16);
-        //System.out.println("endTime: " + shortenedEnd);
         LocalDateTime localEnd = LocalDateTime.parse(shortenedEnd, datetimeformatter);
         ZonedDateTime utcEnd = localEnd.atZone(ZoneId.of("UTC"));
         ZonedDateTime zdtEnd = utcEnd.withZoneSameInstant(zid);
@@ -122,9 +127,7 @@ public class Appointment
         ZonedDateTime zdtTime = endLDT.atZone(zid);
         ZonedDateTime utcTime = zdtTime.withZoneSameInstant(ZoneId.of("UTC"));
         LocalDateTime ldtTime = utcTime.toLocalDateTime();
-        //String stTime = ldtTime.format(fullformatter);
         Timestamp tsTime = Timestamp.valueOf(ldtTime);
-        //System.out.println("UTCendTime: " + tsTime);
         
         this.endTimestamp = tsTime;
     }
